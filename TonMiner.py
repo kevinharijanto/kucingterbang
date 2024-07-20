@@ -28,57 +28,75 @@ with open('query.txt', 'r') as file:
 authorizations = [line.strip() for line in lines]
 
 def get_token(headers, auth):
-    body = {
-        'initData': auth
-    }
-    response = requests.post('https://xapi.goldminer.app/auth/login', headers=headers, json=body)
+    body = {'initData': auth}
+    try:
+        response = requests.post('https://xapi.goldminer.app/auth/login', headers=headers, json=body)
+        if response.status_code == 200:
+            try:
+                token = response.json()['data']['token']
+                return token
+            except ValueError as e:
+                print(f"Error decoding JSON with token auth: {e}, Response content: {response.text}")
+        elif response.status_code not in [500, 503, 502, 520, 521]:
+            print(f"Request with token {auth} failed with status code {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        print(f"get token error with token auth: {e}")
     
-    if response.status_code == 200:
-        token = response.json()['data']['token']
-        return token
+    time.sleep(1)  # Menunggu 1 detik sebelum mengirim permintaan berikutnya
+    
 
 def get_amount_to_tap(headers, token):
-    body = {
-        "amount": 0,
-        "_token": token
-    }
+    body = {"amount": 0,"_token": token}
 
     # get amount to tap
-    response = requests.post('https://xapi.goldminer.app/account/info', headers=headers, json=body)
-    if response.status_code == 200:
-        data = response.json()['data']
-        amount = math.floor(data['store_coin'])-2
-        return amount
+    try:
+        response = requests.post('https://xapi.goldminer.app/account/info', headers=headers, json=body)
+        if response.status_code == 200:
+            try:
+                data = response.json()['data']
+                amount = math.floor(data['store_coin'])-2
+                return amount
+            except ValueError as e:
+                print(f"Error decoding JSON with token auth: {e}, Response content: {response.text}")
+        elif response.status_code not in [500, 503, 502, 520, 521]:
+            print(f"Request with token {token} failed with status code {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        print(f"Request amount to tap error with token auth: {e}")
 
 def tap(headers, token, amount, index):
-    body = {
-        "amount": amount,
-        "_token": token
-    }
+    body = {"amount": amount,"_token": token}
 
-    response = requests.post('https://xapi.goldminer.app/account/info', headers=headers, json=body)
-    if response.status_code == 200:
-        data            = response.json()['data']
-        username        = data['username']
-        balance_gold    = format_balance(data['coin'])
-        sellable_gold   = format_balance(data['free_coin'])
-        pph             = format_balance(data['power'] * 3600)
-        energy          = format_balance(data['store_coin'])
-        capacity        = data['store_max']
-        miners          = len(data['miners'])
-        
-        result = (
-            f"{get_random_color()}{index+1} | "
-            f"{get_random_color()}{username}{Style.RESET_ALL} | "
-            f"Miner: {miners}{Style.RESET_ALL} | "
-            f"Gold: {Fore.GREEN}{balance_gold}{Style.RESET_ALL} | "
-            f"S_Gold: {Fore.YELLOW}{sellable_gold}{Style.RESET_ALL} | "
-            f"PPh: {Fore.GREEN}{pph}{Style.RESET_ALL} | "
-            f"Energy: {get_random_color()}{energy}{Style.RESET_ALL} | "
-            f"Capacity: {get_random_color()}{capacity}{Style.RESET_ALL}"
-        )
-        print(result)
-        return result
+    try:
+        response = requests.post('https://xapi.goldminer.app/account/info', headers=headers, json=body)
+        if response.status_code == 200:
+            try:
+                data            = response.json()['data']
+                username        = data['username']
+                balance_gold    = format_balance(data['coin'])
+                sellable_gold   = format_balance(data['free_coin'])
+                pph             = format_balance(data['power'] * 3600)
+                energy          = format_balance(data['store_coin'])
+                capacity        = data['store_max']
+                miners          = len(data['miners'])
+                
+                result = (
+                    f"{get_random_color()}{index+1} | "
+                    f"{get_random_color()}{username}{Style.RESET_ALL} | "
+                    f"Miner: {miners}{Style.RESET_ALL} | "
+                    f"Gold: {Fore.GREEN}{balance_gold}{Style.RESET_ALL} | "
+                    f"S_Gold: {Fore.YELLOW}{sellable_gold}{Style.RESET_ALL} | "
+                    f"PPh: {Fore.GREEN}{pph}{Style.RESET_ALL} | "
+                    f"Energy: {get_random_color()}{energy}{Style.RESET_ALL} | "
+                    f"Capacity: {get_random_color()}{capacity}{Style.RESET_ALL}"
+                )
+                print(result)
+                return result
+            except ValueError as e:
+                print(f"Error decoding JSON with token auth: {e}, Response content: {response.text}")
+        elif response.status_code not in [500, 503, 502, 520, 521]:
+            print(f"Request with index {index} failed with status code {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        print(f"Request to tap error with token auth: {e}")        
 
 def buy_and_work(headers, token):
     # beli miner
@@ -154,8 +172,8 @@ def run_bot(auth, index):
     # beli & pasang miner
     # if len(data['miners']) == 1 and data['coin'] > 1500:
         # buy_and_work(headers, token)
-    
-    return tap(headers, token, amount, index)
+    result = tap(headers, token, amount, index)
+    return result
 
 
 while True:
@@ -175,6 +193,6 @@ while True:
         # Print all results at once
         print("\n".join(results), end="\r", flush=True)
     
-    # time.sleep(2)  # Adjust sleep time as needed
+    # time.sleep(10)  # Adjust sleep time as needed
     time.sleep(60)  # semenit sekali
     
