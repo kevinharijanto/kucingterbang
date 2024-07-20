@@ -84,6 +84,51 @@ def get_acc_info(auth, token, index):
         return result
     # return None, None
 
+def buy_and_work(headers, token):
+    # beli miner
+    recruitPayload = {
+        'asset': 'coin',
+        '_token' : token
+    }
+    response = requests.post('https://xapi.goldminer.app/miner/recruit', headers=headers, json=recruitPayload)
+
+    # list of miners
+    listPayload = {
+        'page': 1,  
+        'perPage' : 20,
+        'status' : 1,
+        '_token' : token
+    }
+    response = requests.post('https://xapi.goldminer.app/mine/list', headers=headers, json=recruitPayload)
+    print(response.json()['data'])
+
+    # pasang miner baru
+    recruitPayload = {
+        'id': 'asd', # ambil dr 
+        'position' : 1, # ambil position yg kosong
+        'mine_id' : 974768, # ambil dr [data][mine]
+        '_token' : token
+    }
+    response = requests.post('https://xapi.goldminer.app/miner/work', headers=headers, json=recruitPayload)
+
+def cleartask(headers, token):
+    # list of task
+    # taskPayload = {
+    #     '_token' : token
+    # }
+    # response = requests.post('https://xapi.goldminer.app/miner/work', headers=headers, json=taskPayload)
+
+    # all task clear
+    for i in (1,2,3,4,5,11):
+        taskPayload = {
+            'id' : i,
+            '_token' : token
+        }
+        response = requests.post('https://xapi.goldminer.app/task/url', headers=headers, json=taskPayload)
+        if response.status_code == 200:
+            print(response.json())
+
+
 def tap_tap(auth, token, index):
     headers = {
         'accept': 'application/json, text/plain, */*',
@@ -114,12 +159,20 @@ def tap_tap(auth, token, index):
     if response.status_code == 200:
         data = response.json()['data']
         amount = math.floor(data['store_coin'])
-        
+    
+    # beresin task
+    # if task clear semua (fetch list, lalu check, maka gausa ngerun)
+    # cleartask(headers, token)
+
+    # beli & pasang miner
+    # if len(data['miners']) == 1 and data['coin'] > 1500:
+        # buy_and_work(headers, token)
+
     body = {
         "amount": amount,
         "_token": token
     }
-    
+
     response = requests.post('https://xapi.goldminer.app/account/info', headers=headers, json=body)
     if response.status_code == 200:
         data            = response.json()['data']
@@ -129,11 +182,13 @@ def tap_tap(auth, token, index):
         pph             = format_balance(data['power'] * 3600)
         energy          = format_balance(data['store_coin'])
         capacity        = data['store_max']
+        miners          = len(data['miners'])
         # add info miners?, upgrade miners? taro miners di tempat kosong?
         
         result = (
             f"{get_random_color()}{index+1} | "
             f"{get_random_color()}{username}{Style.RESET_ALL} | "
+            f"Miner: {miners}{Style.RESET_ALL} | "
             f"Gold: {Fore.GREEN}{balance_gold}{Style.RESET_ALL} | "
             f"S_Gold: {Fore.YELLOW}{sellable_gold}{Style.RESET_ALL} | "
             f"PPh: {Fore.GREEN}{pph}{Style.RESET_ALL} | "
@@ -145,7 +200,6 @@ def tap_tap(auth, token, index):
 
 # beli miner baru
 # taro miner baru biar bekerja
-# automate task
 
 # # TESTING
 # get_acc_info(authorizations[0], tokens[0], 0)
@@ -170,5 +224,5 @@ while True:
         print("\n".join(results), end="\r", flush=True)
     
     # time.sleep(2)  # Adjust sleep time as needed
-    time.sleep(10)  # sejam sekali
+    time.sleep(60)  # semenit sekali
     
