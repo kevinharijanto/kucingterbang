@@ -42,9 +42,6 @@ def get_token(headers, auth):
     except requests.exceptions.RequestException as e:
         print(f"get token error with token auth: {e}")
     
-    time.sleep(1)  # Menunggu 1 detik sebelum mengirim permintaan berikutnya
-    
-
 def get_amount_to_tap(headers, token):
     body = {"amount": 0,"_token": token}
 
@@ -162,9 +159,19 @@ def run_bot(auth, index):
         'x-requested-with': 'org.telegram.messenger.web'
     }
     
-    # get token
-    token = get_token(headers, auth)
-    amount = get_amount_to_tap(headers, token)
+    while True:
+        try:
+            time.sleep(2)
+            # get token
+            token = get_token(headers, auth)
+            amount = get_amount_to_tap(headers, token)
+            # print(f"index {index} + {amount}") #belom sampe brow
+            result = tap(headers, token, amount, index)
+            return result
+        except Exception as e:
+            print(Fore.RED + f"Error fetching data for Akun {index + 1}: {e}")
+            time.sleep(5)  # Wait before retrying
+        
     # beresin task
     # if task clear semua (fetch list, lalu check, maka gausa ngerun)
     # cleartask(headers, token)
@@ -172,8 +179,8 @@ def run_bot(auth, index):
     # beli & pasang miner
     # if len(data['miners']) == 1 and data['coin'] > 1500:
         # buy_and_work(headers, token)
-    result = tap(headers, token, amount, index)
-    return result
+        
+    
 
 
 while True:
@@ -193,6 +200,6 @@ while True:
         # Print all results at once
         print("\n".join(results), end="\r", flush=True)
     
-    # time.sleep(10)  # Adjust sleep time as needed
-    time.sleep(60)  # semenit sekali
+    time.sleep(10)  # Adjust sleep time as needed
+    # time.sleep(60)  # semenit sekali
     
