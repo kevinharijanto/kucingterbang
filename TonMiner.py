@@ -95,50 +95,6 @@ def tap(headers, token, amount, index):
     except requests.exceptions.RequestException as e:
         print(f"Request to tap error with token auth: {e}")        
 
-def buy_and_work(headers, token):
-    # beli miner
-    recruitPayload = {
-        'asset': 'coin',
-        '_token' : token
-    }
-    response = requests.post('https://xapi.goldminer.app/miner/recruit', headers=headers, json=recruitPayload)
-
-    # list of miners
-    listPayload = {
-        'page': 1,  
-        'perPage' : 20,
-        'status' : 1,
-        '_token' : token
-    }
-    response = requests.post('https://xapi.goldminer.app/mine/list', headers=headers, json=recruitPayload)
-    print(response.json()['data'])
-
-    # pasang miner baru
-    recruitPayload = {
-        'id': 'asd', # ambil dr 
-        'position' : 1, # ambil position yg kosong
-        'mine_id' : 974768, # ambil dr [data][mine]
-        '_token' : token
-    }
-    response = requests.post('https://xapi.goldminer.app/miner/work', headers=headers, json=recruitPayload)
-
-def cleartask(headers, token):
-    # list of task
-    # taskPayload = {
-    #     '_token' : token
-    # }
-    # response = requests.post('https://xapi.goldminer.app/miner/work', headers=headers, json=taskPayload)
-
-    # all task clear
-    for i in (1,2,3,4,5,11):
-        taskPayload = {
-            'id' : i,
-            '_token' : token
-        }
-        response = requests.post('https://xapi.goldminer.app/task/url', headers=headers, json=taskPayload)
-        if response.status_code == 200:
-            print(response.json())
-
 def run_bot(auth, index):
     headers = {
         'accept': 'application/json, text/plain, */*',
@@ -179,10 +135,9 @@ def run_bot(auth, index):
     # beli & pasang miner
     # if len(data['miners']) == 1 and data['coin'] > 1500:
         # buy_and_work(headers, token)
-        
     
-
-
+    # sell token kl uda 10k
+        
 while True:
     
     results = []        
