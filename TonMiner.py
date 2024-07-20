@@ -8,6 +8,7 @@ from colorama import init, Fore, Style
 import base64
 import random
 from concurrent.futures import ThreadPoolExecutor
+import math
 init(autoreset=True)
 
 # Function to get random color
@@ -133,9 +134,19 @@ def tap_tap(auth, token, index):
         'x-requested-with': 'org.telegram.messenger.web'
     }
     
-    # if energy < 10, energy || if energy < capacity, capacity. 
     body = {
-        "amount": 10,
+        "amount": 0,
+        "_token": token
+    }
+
+    # check before
+    response = requests.post('https://xapi.goldminer.app/account/info', headers=headers, json=body)
+    if response.status_code == 200:
+        data = response.json()['data']
+        amount = math.floor(data['store_coin'])
+        
+    body = {
+        "amount": amount,
         "_token": token
     }
     
@@ -159,6 +170,7 @@ def tap_tap(auth, token, index):
             f"Energy: {get_random_color()}{energy}{Style.RESET_ALL} | "
             f"Capacity: {get_random_color()}{capacity}{Style.RESET_ALL}"
         )
+        print(result)
         return result
 
 # beli miner baru
@@ -176,8 +188,9 @@ if len(tokens) - len(authorizations) != 0:
         f.write('\n')
     
 # get_acc_info(authorizations[0], tokens[0], 0)
-# tap_tap(authorizations[0], tokens[0], 0)
-    
+# tap_tap(authorizations[1], tokens[1], 1)
+
+time.sleep(10)    
 
 while True:
     
@@ -198,5 +211,5 @@ while True:
         print("\n".join(results), end="\r", flush=True)
     
     # time.sleep(2)  # Adjust sleep time as needed
-    time.sleep(2)  # sejam sekali
+    time.sleep(3600)  # sejam sekali
     
