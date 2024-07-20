@@ -47,7 +47,7 @@ def get_amount_to_tap(headers, token):
     response = requests.post('https://xapi.goldminer.app/account/info', headers=headers, json=body)
     if response.status_code == 200:
         data = response.json()['data']
-        amount = math.floor(data['store_coin'])
+        amount = math.floor(data['store_coin'])-2
         return amount
 
 def tap(headers, token, amount, index):
@@ -124,7 +124,6 @@ def cleartask(headers, token):
         if response.status_code == 200:
             print(response.json())
 
-
 def run_bot(auth, index):
     headers = {
         'accept': 'application/json, text/plain, */*',
@@ -165,7 +164,6 @@ while True:
     # Use ThreadPoolExecutor to make requests concurrently
     with ThreadPoolExecutor(max_workers=len(authorizations)) as executor:
         futures = [executor.submit(run_bot, auth, index) for index, auth in enumerate(authorizations)]
-        # futures = [executor.submit(get_acc_info, auth, tokens[index], index) for index, auth in enumerate(authorizations)]
         for future in futures:
             result = future.result()  # Wait for all threads to complete
             if result:
