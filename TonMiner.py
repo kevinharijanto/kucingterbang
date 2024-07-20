@@ -178,19 +178,8 @@ def tap_tap(auth, token, index):
 # automate task
 
 # # TESTING
-if len(tokens) - len(authorizations) != 0:
-    # refetch tokens
-    f=open('tokens.txt', 'w')
-    for i in range(len(authorizations)):
-        token = fetch_token(authorizations[i], i)
-        f.write(token)
-        print(i)
-        f.write('\n')
-    
 # get_acc_info(authorizations[0], tokens[0], 0)
-# tap_tap(authorizations[1], tokens[1], 1)
-
-time.sleep(10)    
+# tap_tap(authorizations[1], tokens[1], 1)   
 
 while True:
     
