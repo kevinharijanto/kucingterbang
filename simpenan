@@ -1,0 +1,49 @@
+         
+def get_acc_info(auth, token, index):
+    headers = {
+        'accept': 'application/json, text/plain, */*',
+        'accept-language': 'en,id-ID;q=0.9,id;q=0.8,en-US;q=0.7',
+        'access-control-allow-origin': '*',
+        'authorization': auth,
+        'cache-control': 'no-cache',
+        'pragma': 'no-cache',
+        'priority': 'u=1, i',
+        'referer': f'https://game.goldminer.app/{auth}',
+        'sec-ch-ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Android WebView";v="126"',
+        'sec-ch-ua-mobile': '?1',
+        'sec-ch-ua-platform': '"Android"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
+        'user-agent': 'Mozilla/5.0 (Linux; Android 13; M2012K11AG Build/TKQ1.220829.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/126.0.6478.134 Mobile Safari/537.36',
+        'x-requested-with': 'org.telegram.messenger.web'
+    }
+    
+    body = {
+        "amount": 0,
+        "_token": token
+    }
+    response = requests.post('https://xapi.goldminer.app/account/info', headers=headers, json=body)
+
+    if response.status_code == 200:
+        data            = response.json()['data']
+        username        = data['username']
+        balance_gold    = format_balance(data['coin'])
+        sellable_gold   = format_balance(data['free_coin'])
+        pph             = format_balance(data['power'] * 3600)
+        energy          = format_balance(data['store_coin'])
+        capacity        = data['store_max']
+        # add info miners?, upgrade miners? taro miners di tempat kosong?
+        
+        result = (
+            f"{get_random_color()}{index+1} | "
+            f"{get_random_color()}{username}{Style.RESET_ALL} | "
+            f"Gold: {Fore.GREEN}{balance_gold}{Style.RESET_ALL} | "
+            f"S_Gold: {Fore.YELLOW}{sellable_gold}{Style.RESET_ALL} | "
+            f"PPh: {Fore.GREEN}{pph}{Style.RESET_ALL} | "
+            f"Energy: {get_random_color()}{energy}{Style.RESET_ALL} | "
+            f"Capacity: {get_random_color()}{capacity}{Style.RESET_ALL}"
+        )
+        # print(result)
+        return result
+    # return None, None
