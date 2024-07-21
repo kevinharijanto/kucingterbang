@@ -33,8 +33,12 @@ def get_token(headers, auth):
         response = requests.post('https://xapi.goldminer.app/auth/login', headers=headers, json=body)
         if response.status_code == 200:
             try:
-                token = response.json()['data']['token']
-                return token
+                if response.json()['data'] == 'None':
+                    token = response.json()['message']
+                    return token
+                else:
+                    token = response.json()['data']['token']
+                    return token
             except ValueError as e:
                 print(f"Error decoding JSON with token auth: {e}, Response content: {response.text}")
         elif response.status_code not in [500, 503, 502, 520, 521]:
@@ -123,7 +127,7 @@ def run_bot(auth, index):
             
             if token:
                 amount = get_amount_to_tap(headers, token)
-                tap(headers, token, amount, index)
+                result = tap(headers, token, amount, index)
                 return result
             else:
                 return Fore.RED + f"Failed to fetch data for Akun {index + 1}"
@@ -149,5 +153,4 @@ while True:
         print("\n".join(results), end="\r", flush=True)
     
     time.sleep(10)  # Adjust sleep time as needed
-    # time.sleep(60)  # semenit sekali
     
