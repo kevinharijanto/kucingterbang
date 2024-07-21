@@ -120,24 +120,17 @@ def run_bot(auth, index):
             time.sleep(2)
             # get token
             token = get_token(headers, auth)
-            amount = get_amount_to_tap(headers, token)
-            # print(f"index {index} + {amount}") #belom sampe brow
-            result = tap(headers, token, amount, index)
-            return result
+            
+            if token:
+                amount = get_amount_to_tap(headers, token)
+                tap(headers, token, amount, index)
+                return result
+            else:
+                return Fore.RED + f"Failed to fetch data for Akun {index + 1}"
+            
         except Exception as e:
-            print(Fore.RED + f"Error fetching data for Akun {index + 1}: {e}")
-            time.sleep(5)  # Wait before retrying
-        
-    # beresin task
-    # if task clear semua (fetch list, lalu check, maka gausa ngerun)
-    # cleartask(headers, token)
-
-    # beli & pasang miner
-    # if len(data['miners']) == 1 and data['coin'] > 1500:
-        # buy_and_work(headers, token)
-    
-    # sell token kl uda 10k
-        
+            return Fore.RED + f"Error fetching data for Akun {index + 1}: {e}"
+ 
 while True:
     
     results = []        
